@@ -2,14 +2,16 @@ from bs4 import BeautifulSoup
 import numpy
 import pandas
 import requests
+from datetime import datetime
 
 betclic_nba_url = "https://www.betclic.fr/basket-ball-s4/nba-c13"
-#print(soup)
-#nba_teams = ['Ind', 'Hou', 'Phi', 'Was', 'Orl', 'Cle', 'Atl', 'Cha', 'NY', 'Uta', 'Mia', 'Bos', 'Mil', 'Det', 'New', 'Okl', 'Pho', 'Tor', 'Pho', 'Tor', 'Sac', 'Chi', 'Sac', 'Chi', 'Bro', 'Phi', 'Bro', 'Phi', 'Mem', 'Cle', 'Mem', 'Cle', 'Por', 'Min', 'Por', 'Min', 'Den', 'Dal', 'Den', 'Dal']
-nba_teams = []
-link = "ellipsis"
-link_2="oddValue ng-tns-c0-21 ng-star-inserted"
+nba_teams = ['Atlanta Hawks','Boston Celtics','Brooklyn Nets','Charlotte Hornets','Chicago Bulls','Cleveland Cavaliers','Dallas Mavericks','Denver Nuggets','Detroit Pistons','Golden State Warriors','Houston Rockets','Indiana Pacers','Los Angeles Clippers','Los Angeles Lakers','Memphis Grizzlies','Miami Heat','Milwaukee Bucks','Minnesota Timberwolves','New Orleans Pelicans','New York Knicks','Oklahoma City Thunder','Orlando Magic','Philadelphia 76ers','Phoenix Suns','Portland Trail Blazers','Sacramento Kings','San Antonio Spurs','Toronto Raptors','Utah Jazz','Washington Wizards']
 
+
+class Team:
+    def __init__(self, name, odd_variation):
+        self.name = name
+        self.odd_variation = odd_variation
 
 
 def make_soup(url):
@@ -20,58 +22,29 @@ def make_soup(url):
     return BeautifulSoup(html, "lxml")
 
 
-def list_teams(list,soup):
-
-    for span in soup.find_all('span',{"class" : link}):
-        text = span.text
-        text = text.replace('\xa0', ',')
-        text=text.split(',',1)[0]
-        list.append(text)
-        myset=set(list)
-
-    return myset
-
-
-def update_score(team,soup,list_odds):
-    link="betBox_odds betBox_oddsSpecial"
-    link1="ellipsis"
-    for betbox in soup.find_all('div', {"class": link}):
-        if team in betbox.find('span', {"class": link1}).text:
-            print("team")
-        else:
-            print("not working")
-        #new_odd = int(new_odd)
-        #last_odd = list_odds[-1]
-        #list_odds.append(new_odd)
-        #return (new_odd/last_odd)
+def update_score(Team,soup):
+    for i in range(40):
+        link_test_name = "ng-tns-c0-{}".format(i)
+        team_name = soup.find('span', {"class": link_test_name}).text
+        if team_name[:3] in Team.name:
+            link_test_odd = "oddValue ng-tns-c0-{} ng-star-inserted".format(i)
+            odd_value = soup.find('span', {"class": link_test_odd}).text
+            odd_int_value=int(odd_value)
+            time = datetime.now()
+            update = numpy.array([odd_int_value,time])
+    return update
 
 
-def list_first_odds(list, soup):
-    for span in soup.find_all('span', {"class": "odds" }):
-        text = span.text
-        #text = text.replace('\xa0', ',')
-        #text = text.split(',', 1)[0]
-        list.append(text)
-        # myset=set(list)
-
-    return list
+def set_teams(list):
+    for i in list:
+        team = "t".format(i)
+        team = Team(list[i],0)
 
 
 soup = make_soup(betclic_nba_url)
-print(soup)
-link="betBox_odds betBox_oddsSpecial"
-link1="ellipsis"
-
-for betbox in soup.find_all('div', {"class": link}):
-    text = betbox.find('span', {"class": link1}).text
-    if "Denver" in text:
-        print(text)
-    else:
-        print("not working")
-
-
-#proper_list_teams = list_teams(nba_teams,soup)
-nba_actual_odds = [3]
-#evolution = update_score("Denver",soup,nba_actual_odds)
-#list_of_odds=list_odds(nba_actual_odds, soup)
-#print(evolution)
+set_teams(nba_teams)
+for nba_team in Team.objects.all():
+    new_data = update_score(nba_team)
+    print(new_data)
+    nba_team.odd_variation.append(new_data)
+print('salut')
