@@ -39,19 +39,15 @@ def make_soup(url):
 def update_odd(Team,soup):
     for i in range(40):
         link_test_name = "ng-tns-c0-{}".format(i)
-        if soup.find('span', {"class": link_test_name}).text:
-            span = soup.find('span', {"class": link_test_name}).text
-            team_name = span
-            time = datetime.now()
-            if team_name[1:4] == Team.name[:3]:
-                link_test_odd = "oddValue ng-tns-c0-{} ng-star-inserted".format(i)
-                odd_value = soup.find('span', {"class": link_test_odd}).text
+        time = datetime.now()
+        if soup.find('span', {"class": link_test_name}).text[1:4] in Team.name[:3]:
+            link_test_odd = "oddValue ng-tns-c0-{} ng-star-inserted".format(i)
+            odd_value = soup.find('span', {"class": link_test_odd}).text
+            if odd_value != "-":
                 odd_point_value = odd_value.replace(",",".")
                 odd_float_value = float(odd_point_value)
+                Team.data['name'] = Team.name
                 Team.data['odd'] = odd_float_value
-                Team.data['time'] = time
-            else:
-                Team.data['odd'] =0
                 Team.data['time'] = time
     return
 
@@ -61,5 +57,7 @@ initialize(list_nba_teams_data)
 soup = make_soup(betclic_nba_url)
 print(soup)
 for team in list_nba_teams_data:
+    print(team.name)
     update_odd(team,soup)
-    print (team.data)
+    print(team.data)
+
