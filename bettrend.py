@@ -9,9 +9,11 @@ nba_teams = ['Atlanta Hawks','Boston Celtics','Brooklyn Nets','Charlotte Hornets
 
 
 class Team:
-    def __init__(self, name, odd_variation):
+
+    data = numpy.array(3)
+
+    def __init__(self, name):
         self.name = name
-        self.odd_variation = odd_variation
 
 
 def make_soup(url):
@@ -35,16 +37,14 @@ def update_score(Team,soup):
     return update
 
 
-def set_teams(list):
-    for i in list:
-        team = "t".format(i)
-        team = Team(list[i],0)
+#soup = make_soup(betclic_nba_url)
+#for nba_team in Team.objects.all():
+#    new_data = update_score(nba_team)
+#    print(new_data)
+#    nba_team.odd_variation.append(new_data)
+#print('salut')
 
+for i in range (len(nba_teams)):
+    team = Team(nba_teams[i])
+    print(team.name)
 
-soup = make_soup(betclic_nba_url)
-set_teams(nba_teams)
-for nba_team in Team.objects.all():
-    new_data = update_score(nba_team)
-    print(new_data)
-    nba_team.odd_variation.append(new_data)
-print('salut')
